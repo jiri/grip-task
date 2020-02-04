@@ -27,7 +27,7 @@ public static class Geometry {
             case Face.Back:
                 return new Vector3Int(0, 0, -1);
             default:
-                // TODO: Figure out how to error here
+                Debug.LogError($"Unknown enum value {f}");
                 return new Vector3Int(0, 0, 0);
         }
     }
