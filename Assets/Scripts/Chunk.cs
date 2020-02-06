@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class Chunk : MonoBehaviour {
+public class Chunk {
     public static readonly int Size = 16;
     public static readonly int Height = 32;
+
+    GameObject gameObject;
 
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
@@ -19,11 +20,39 @@ public class Chunk : MonoBehaviour {
 
     public World world;
 
-    void Start() {
-        this.meshFilter = GetComponent<MeshFilter>();
-        this.meshRenderer = GetComponent<MeshRenderer>();
+    public Vector2Int chunkPosition;
 
-        this.world = GameObject.Find("World").GetComponent<World>();
+    public bool isActive {
+        get {
+            return this.gameObject.activeSelf;
+        }
+        set {
+            this.gameObject.SetActive(value);
+        }
+    }
+
+    public Vector3Int position {
+        get {
+            return new Vector3Int(
+                Mathf.FloorToInt(this.gameObject.transform.position.x),
+                Mathf.FloorToInt(this.gameObject.transform.position.y),
+                Mathf.FloorToInt(this.gameObject.transform.position.z)
+            );
+        }
+    }
+
+    public Chunk(World world, Vector2Int chunkPosition) {
+        this.world = world;
+        this.chunkPosition = chunkPosition;
+
+        this.gameObject = new GameObject();
+        this.gameObject.transform.SetParent(this.world.transform);
+        this.gameObject.transform.position = new Vector3(this.chunkPosition.x * Chunk.Size, 0.0f, this.chunkPosition.y * Chunk.Size);
+        this.gameObject.name = $"Chunk {chunkPosition}";
+
+        this.meshFilter = this.gameObject.AddComponent<MeshFilter>();
+        this.meshRenderer = this.gameObject.AddComponent<MeshRenderer>();
+        this.meshRenderer.material = this.world.terrainMaterial;
 
         PopulateMap();
         GenerateMesh();
@@ -33,30 +62,27 @@ public class Chunk : MonoBehaviour {
         for (int x = 0; x < Chunk.Size; x++) {
             for (int y = 0; y < Chunk.Height; y++) {
                 for (int z = 0; z < Chunk.Size; z++) {
-                    if (y > Chunk.Height / 2) {
-                        this.data[x, y, z] = 0;
-                    }
-                    else if (y == Chunk.Height / 2) {
-                        this.data[x, y, z] = 3;
-                    }
-                    else if (y > Chunk.Height / 2 - 3) {
-                        this.data[x, y, z] = 2;
-                    }
-                    else {
-                        this.data[x, y, z] = 1;
-                    }
+                    this.data[x, y, z] = this.world.GetVoxel(new Vector3Int(x, y, z) + this.position);
                 }
             }
         }
     }
 
-    byte GetBlock(Vector3Int p) {
-        if (p.x < 0 || p.x > Chunk.Size - 1 ||
-            p.y < 0 || p.y > Chunk.Height - 1 ||
-            p.z < 0 || p.z > Chunk.Size - 1) {
-            return 0;
+    bool IsVoxelInChunk(Vector3Int p) {
+        return !(p.x < 0 || p.x > Chunk.Size - 1
+              || p.y < 0 || p.y > Chunk.Height - 1
+              || p.z < 0 || p.z > Chunk.Size - 1);
+    }
+
+    byte GetBlock(Vector3Int position) {
+        return this.data[position.x, position.y, position.z];
+    }
+
+    bool CheckVoxel(Vector3Int position) {
+        if (!IsVoxelInChunk(position)) {
+            return world.blockPrototypes[world.GetVoxel(position + this.position)].isSolid;
         }
-        return this.data[p.x, p.y, p.z];
+        return world.blockPrototypes[this.data[position.x, position.y, position.z]].isSolid;
     }
 
     void GenerateMesh() {
@@ -84,13 +110,14 @@ public class Chunk : MonoBehaviour {
         }
 
         foreach (Geometry.Face face in System.Enum.GetValues(typeof(Geometry.Face))) {
-            byte neighbour = this.GetBlock(p + face.Offset());
-            if (!world.blockPrototypes[neighbour].isSolid) {
+            if (!CheckVoxel(p + face.Offset())) {
+                //byte block = GetBlock(p);
+
                 for (int i = 0; i < 6; i++) {
                     int index = Geometry.triangles[(int)face, i];
                     vertices.Add(Geometry.vertices[index] + p);
                     triangles.Add(currentVertex);
-                    AddUV(world.blockPrototypes[block].GetTextureID(face), Geometry.uvs[i]);
+                    AddUV(this.world.blockPrototypes[block].GetTextureID(face), Geometry.uvs[i]);
                     currentVertex++;
                 }
             }
