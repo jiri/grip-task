@@ -23,13 +23,17 @@ public class Chunk {
 
     public bool IsLoaded { get; private set; } = false;
 
-    // TODO: Handle this when `this.gameObject' isn't created yet
+    private bool _isActive = true;
+
     public bool isActive {
         get {
-            return this.gameObject.activeSelf;
+            return this._isActive;
         }
         set {
-            this.gameObject.SetActive(value);
+            _isActive = value;
+            if (this.gameObject) {
+                this.gameObject.SetActive(this._isActive);
+            }
         }
     }
 
@@ -54,6 +58,7 @@ public class Chunk {
 
     public void Load() {
         this.gameObject = new GameObject();
+        this.gameObject.SetActive(this.isActive);
         this.gameObject.transform.SetParent(this.world.transform);
         this.gameObject.transform.position = new Vector3(this.chunkPosition.x * Chunk.Size, 0.0f, this.chunkPosition.y * Chunk.Size);
         this.gameObject.name = $"Chunk {chunkPosition}";
