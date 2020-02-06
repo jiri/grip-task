@@ -17,6 +17,9 @@ public class World : MonoBehaviour {
     Chunk[,] chunkSlice = new Chunk[SizeInChunks, SizeInChunks];
     List<Vector2Int> activeChunks = new List<Vector2Int>();
 
+    Queue<Vector2Int> generationQueue = new Queue<Vector2Int>();
+    bool isGeneratingChunks = false;
+
     public Vector3 spawnPosition;
 
     public Transform player;
@@ -41,7 +44,22 @@ public class World : MonoBehaviour {
             CheckViewDistance();
         }
 
+        if (generationQueue.Count > 0 && !this.isGeneratingChunks)
+            StartCoroutine("GenerateChunks");
+
         this.playerLastChunkPosition = this.playerChunkPosition;
+    }
+
+    IEnumerator GenerateChunks() {
+        this.isGeneratingChunks = true;
+
+        while (generationQueue.Count > 0) {
+            Vector2Int chunkPosition = generationQueue.Dequeue();
+            this.chunkSlice[chunkPosition.x, chunkPosition.y].Load();
+            yield return null;
+        }
+
+        this.isGeneratingChunks = false;
     }
 
     void GenerateWorld() {
@@ -78,14 +96,14 @@ public class World : MonoBehaviour {
                 }
 
                 if (this.chunkSlice[x, z] == null) {
-                    this.chunkSlice[x, z] = new Chunk(this, new Vector2Int(x, z));
-                    this.activeChunks.Add(new Vector2Int(x, z));
+                    this.chunkSlice[x, z] = new Chunk(this, new Vector2Int(x, z), true);
+                    this.generationQueue.Enqueue(new Vector2Int(x, z));
                 }
                 else if (!this.chunkSlice[x, z].isActive) {
                     this.chunkSlice[x, z].isActive = true;
-                    this.activeChunks.Add(new Vector2Int(x, z));
                 }
 
+                this.activeChunks.Add(new Vector2Int(x, z));
                 previouslyActiveChunks.RemoveAll(chunk => chunk.Equals(new Vector2Int(x, z)));
             }
         }
@@ -119,16 +137,25 @@ public class World : MonoBehaviour {
     }
 
     public bool CheckVoxel(Vector3 position) {
-        int x = Mathf.FloorToInt(position.x);
-        int y = Mathf.FloorToInt(position.y);
-        int z = Mathf.FloorToInt(position.z);
+        Vector2Int chunkPosition = ChunkPositionFromPosition(position);
 
-        int chunkX = x / Chunk.Size;
-        int chunkZ = z / Chunk.Size;
+        if (!IsChunkInWorld(chunkPosition)) {
+            return false;
+        }
 
-        x -= (chunkX * Chunk.Size);
-        z -= (chunkZ * Chunk.Size);
+        Chunk chunk = this.chunkSlice[chunkPosition.x, chunkPosition.y];
 
-        return this.atlas.prototypes[this.chunkSlice[chunkX, chunkZ].data[x, y, z]].isSolid;
+        if (chunk != null && chunk.IsLoaded) {
+            Vector3Int localPosition = chunk.LocalPositionFromGlobal(position);
+            byte block = chunk.data[localPosition.x, localPosition.y, localPosition.z];
+            return this.atlas.prototypes[block].isSolid;
+        }
+        else {
+            int x = Mathf.FloorToInt(position.x);
+            int y = Mathf.FloorToInt(position.y);
+            int z = Mathf.FloorToInt(position.z);
+            byte block = GetVoxel(new Vector3Int(x, y, z));
+            return this.atlas.prototypes[block].isSolid;
+        }
     }
 }

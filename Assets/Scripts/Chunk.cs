@@ -19,9 +19,11 @@ public class Chunk {
     List<Vector2> uvs = new List<Vector2>();
 
     public World world;
-
     public Vector2Int chunkPosition;
 
+    public bool IsLoaded { get; private set; } = false;
+
+    // TODO: Handle this when `this.gameObject' isn't created yet
     public bool isActive {
         get {
             return this.gameObject.activeSelf;
@@ -41,10 +43,16 @@ public class Chunk {
         }
     }
 
-    public Chunk(World world, Vector2Int chunkPosition) {
+    public Chunk(World world, Vector2Int chunkPosition, bool delayedLoad = false) {
         this.world = world;
         this.chunkPosition = chunkPosition;
 
+        if (!delayedLoad) {
+            this.Load();
+        }
+    }
+
+    public void Load() {
         this.gameObject = new GameObject();
         this.gameObject.transform.SetParent(this.world.transform);
         this.gameObject.transform.position = new Vector3(this.chunkPosition.x * Chunk.Size, 0.0f, this.chunkPosition.y * Chunk.Size);
@@ -56,6 +64,8 @@ public class Chunk {
 
         PopulateMap();
         GenerateMesh();
+
+        this.IsLoaded = true;
     }
 
     void PopulateMap() {
@@ -74,15 +84,15 @@ public class Chunk {
               || p.z < 0 || p.z > Chunk.Size - 1);
     }
 
-    byte GetBlock(Vector3Int position) {
-        return this.data[position.x, position.y, position.z];
+    byte GetBlock(Vector3Int pos) {
+        return this.data[pos.x, pos.y, pos.z];
     }
 
-    bool CheckVoxel(Vector3Int position) {
+    bool CheckVoxel(Vector3Int pos) {
         if (!IsVoxelInChunk(position)) {
-            return world.atlas.prototypes[world.GetVoxel(position + this.position)].isSolid;
+            return this.world.CheckVoxel(this.position + pos);
         }
-        return world.atlas.prototypes[this.data[position.x, position.y, position.z]].isSolid;
+        return world.atlas.prototypes[this.data[pos.x, pos.y, pos.z]].isSolid;
     }
 
     void GenerateMesh() {
@@ -130,5 +140,16 @@ public class Chunk {
         float unit = 16.0f / 256.0f;
 
         uvs.Add(new Vector2((x + uv.x) * unit, 1.0f - (y - uv.y + 1) * unit));
+    }
+
+    public Vector3Int LocalPositionFromGlobal(Vector3 pos) {
+        int x = Mathf.FloorToInt(pos.x);
+        int y = Mathf.FloorToInt(pos.y);
+        int z = Mathf.FloorToInt(pos.z);
+
+        x -= Mathf.FloorToInt(this.position.x);
+        z -= Mathf.FloorToInt(this.position.z);
+
+        return new Vector3Int(x, y, z);
     }
 }
