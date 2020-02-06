@@ -24,6 +24,13 @@ public class FPSController : MonoBehaviour {
     private bool isGrounded;
     private bool shouldJump;
 
+    public float reach = 3.0f;
+    private Vector3Int? placePosition;
+    private Vector3Int? destroyPosition;
+
+    public GameObject destroyMarker;
+    public GameObject placeMarker;
+
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -32,6 +39,16 @@ public class FPSController : MonoBehaviour {
 
     void Update() {
         GetInput();
+
+        this.placeMarker.SetActive(this.placePosition != null);
+        if (this.placePosition.HasValue) {
+            this.placeMarker.transform.position = this.placePosition.Value;
+        }
+
+        this.destroyMarker.SetActive(this.destroyPosition != null);
+        if (this.destroyPosition.HasValue) {
+            this.destroyMarker.transform.position = this.destroyPosition.Value;
+        }
     }
 
     void GetInput() {
@@ -59,6 +76,43 @@ public class FPSController : MonoBehaviour {
         this.transform.rotation = Quaternion.AngleAxis(this.mouseHorizontal, Vector3.up);
         this.camera.rotation = this.transform.rotation * Quaternion.AngleAxis(-this.mouseVertical, Vector3.right);
         transform.Translate(velocity, Space.World);
+
+        RayCast();
+    }
+
+    // FIXME: Fails to set placePosition if first step hits (probably ok)
+    void RayCast() {
+        float stepIncrement = 0.1f;
+        float step = stepIncrement;
+
+        Vector3Int lastPosition = new Vector3Int();
+
+        this.destroyPosition = null;
+        this.placePosition = null;
+
+        while (step < reach) {
+            Vector3 pos = this.camera.position + this.camera.forward * step;
+
+            if (this.world.CheckVoxel(pos)) {
+                this.destroyPosition = new Vector3Int(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y), Mathf.FloorToInt(pos.z));
+
+                // Prevents placing blocks diagonally
+                Vector3Int newPos = this.destroyPosition.Value;
+                if ((newPos.x == lastPosition.x && newPos.y == lastPosition.y) ||
+                    (newPos.x == lastPosition.x && newPos.z == lastPosition.z) ||
+                    (newPos.y == lastPosition.y && newPos.z == lastPosition.z)) {
+                    this.placePosition = lastPosition;
+                }
+                else {
+                    this.placePosition = null;
+                }
+
+                break;
+            }
+
+            lastPosition = new Vector3Int(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y), Mathf.FloorToInt(pos.z));
+            step += stepIncrement;
+        }
     }
 
     void CalculateVelocity() {
