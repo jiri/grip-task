@@ -35,3 +35,9 @@ public class BlockPrototype {
         }
     }
 }
+
+[CreateAssetMenu(fileName = "Atlas", menuName = "Grip Task/Block Atlas")]
+public class BlockAtlas : ScriptableObject {
+    public BlockPrototype[] prototypes;
+    public Material material;
+}

@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class World : MonoBehaviour {
-    public BlockPrototype[] blockPrototypes;
-    public Material terrainMaterial;
+    public BlockAtlas atlas;
 
     public static readonly int SizeInChunks = 100;
     public static readonly int ViewDistanceInChunks = 5;

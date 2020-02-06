@@ -52,7 +52,7 @@ public class Chunk {
 
         this.meshFilter = this.gameObject.AddComponent<MeshFilter>();
         this.meshRenderer = this.gameObject.AddComponent<MeshRenderer>();
-        this.meshRenderer.material = this.world.terrainMaterial;
+        this.meshRenderer.material = this.world.atlas.material;
 
         PopulateMap();
         GenerateMesh();
@@ -80,9 +80,9 @@ public class Chunk {
 
     bool CheckVoxel(Vector3Int position) {
         if (!IsVoxelInChunk(position)) {
-            return world.blockPrototypes[world.GetVoxel(position + this.position)].isSolid;
+            return world.atlas.prototypes[world.GetVoxel(position + this.position)].isSolid;
         }
-        return world.blockPrototypes[this.data[position.x, position.y, position.z]].isSolid;
+        return world.atlas.prototypes[this.data[position.x, position.y, position.z]].isSolid;
     }
 
     void GenerateMesh() {
@@ -117,7 +117,7 @@ public class Chunk {
                     int index = Geometry.triangles[(int)face, i];
                     vertices.Add(Geometry.vertices[index] + p);
                     triangles.Add(currentVertex);
-                    AddUV(this.world.blockPrototypes[block].GetTextureID(face), Geometry.uvs[i]);
+                    AddUV(this.world.atlas.prototypes[block].GetTextureID(face), Geometry.uvs[i]);
                     currentVertex++;
                 }
             }

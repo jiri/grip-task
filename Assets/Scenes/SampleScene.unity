@@ -210,48 +210,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dae422a377e2749ceb1523dd627f4397, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockPrototypes:
-  - name: Air
-    isSolid: 0
-    topTexture: 0
-    bottomTexture: 0
-    leftTexture: 0
-    rightTexture: 0
-    frontTexture: 0
-    backTexture: 0
-  - name: Stone
-    isSolid: 1
-    topTexture: 1
-    bottomTexture: 1
-    leftTexture: 1
-    rightTexture: 1
-    frontTexture: 1
-    backTexture: 1
-  - name: Dirt
-    isSolid: 1
-    topTexture: 2
-    bottomTexture: 2
-    leftTexture: 2
-    rightTexture: 2
-    frontTexture: 2
-    backTexture: 2
-  - name: Grass
-    isSolid: 1
-    topTexture: 0
-    bottomTexture: 2
-    leftTexture: 3
-    rightTexture: 3
-    frontTexture: 3
-    backTexture: 3
-  - name: Wood
-    isSolid: 1
-    topTexture: 21
-    bottomTexture: 21
-    leftTexture: 20
-    rightTexture: 20
-    frontTexture: 20
-    backTexture: 20
-  terrainMaterial: {fileID: 2100000, guid: b72fee47d017e4ec68c9e4b4484b9b6c, type: 2}
+  atlas: {fileID: 11400000, guid: 2c16e5752bf054cf3955ca085b18bce0, type: 2}
+  spawnPosition: {x: 0, y: 0, z: 0}
+  player: {fileID: 534669905}
 --- !u!4 &373872069
 Transform:
   m_ObjectHideFlags: 0
