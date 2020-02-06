@@ -11,7 +11,7 @@ public class Chunk {
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
 
-    byte[,,] data = new byte[Chunk.Size, Chunk.Height, Chunk.Size];
+    public byte[,,] data = new byte[Chunk.Size, Chunk.Height, Chunk.Size];
 
     int currentVertex = 0;
     List<Vector3> vertices = new List<Vector3>();

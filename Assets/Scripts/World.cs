@@ -117,4 +117,18 @@ public class World : MonoBehaviour {
             return 1;
         }
     }
+
+    public bool CheckVoxel(Vector3 position) {
+        int x = Mathf.FloorToInt(position.x);
+        int y = Mathf.FloorToInt(position.y);
+        int z = Mathf.FloorToInt(position.z);
+
+        int chunkX = x / Chunk.Size;
+        int chunkZ = z / Chunk.Size;
+
+        x -= (chunkX * Chunk.Size);
+        z -= (chunkZ * Chunk.Size);
+
+        return this.atlas.prototypes[this.chunkSlice[chunkX, chunkZ].data[x, y, z]].isSolid;
+    }
 }
