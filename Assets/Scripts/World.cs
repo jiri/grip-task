@@ -23,9 +23,12 @@ public class World : MonoBehaviour {
     Vector2Int playerChunkPosition;
     Vector2Int playerLastChunkPosition;
 
+    public int seed;
+
     void Start() {
         this.spawnPosition = new Vector3(SizeInVoxels / 2.0f, Chunk.Height / 2.0f + 2.0f, SizeInVoxels / 2.0f);
 
+        Random.InitState(this.seed);
         GenerateWorld();
 
         this.playerLastChunkPosition = ChunkPositionFromPosition(this.player.position);
@@ -99,13 +102,15 @@ public class World : MonoBehaviour {
             return 0;
         }
 
-        if (position.y > Chunk.Height / 2) {
+        int height = Mathf.FloorToInt(Chunk.Height * 0.5f * Noise.Get2DPerlin(new Vector2(position.x, position.z), 0.0f, 0.25f));
+
+        if (position.y > height) {
             return 0;
         }
-        else if (position.y == Chunk.Height / 2) {
+        else if (position.y == height) {
             return 3;
         }
-        else if (position.y > Chunk.Height / 2 - 3) {
+        else if (position.y > height - 3) {
             return 2;
         }
         else {
