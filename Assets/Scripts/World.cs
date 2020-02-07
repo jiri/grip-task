@@ -106,12 +106,13 @@ public class World : MonoBehaviour {
         }
     }
 
+    // TODO: Get actual, not just generated
     public byte GetVoxel(Vector3Int position) {
         if (position.y < 0 || position.y > Chunk.Height - 1) {
             return 0;
         }
 
-        int height = Mathf.FloorToInt(Chunk.Height * 0.5f * Noise.Get2DPerlin(new Vector2(position.x, position.z), 0.0f, 0.25f));
+        int height = Mathf.FloorToInt(Chunk.Height * 0.5f * Noise.Get2DPerlin(new Vector2(position.x, position.z), this.seed, 0.25f));
 
         if (position.y > height) {
             return 0;
