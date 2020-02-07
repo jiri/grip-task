@@ -116,7 +116,9 @@ public class FPSController : MonoBehaviour {
     }
 
     void CalculateVelocity() {
-        this.verticalMomentum += Time.fixedDeltaTime * this.gravity;
+        if (this.verticalMomentum > this.gravity) {
+            this.verticalMomentum += Time.fixedDeltaTime * this.gravity;
+        }
 
         velocity = (transform.forward * this.vertical + transform.right * this.horizontal) * Time.fixedDeltaTime * this.walkSpeed;
         velocity += Vector3.up * verticalMomentum * Time.fixedDeltaTime;
