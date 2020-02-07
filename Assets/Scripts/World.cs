@@ -7,7 +7,7 @@ public class World : MonoBehaviour {
 
     public static readonly int ViewDistanceInChunks = 5;
 
-    Dictionary<Vector2Int, Chunk> chunkSlice = new Dictionary<Vector2Int, Chunk>();
+    public Dictionary<Vector2Int, Chunk> chunkSlice = new Dictionary<Vector2Int, Chunk>();
     List<Vector2Int> activeChunks = new List<Vector2Int>();
 
     Queue<Vector2Int> generationQueue = new Queue<Vector2Int>();
@@ -21,11 +21,70 @@ public class World : MonoBehaviour {
 
     public int seed;
 
+    bool doGenerate = true;
+
+    public void LoadFromData(WorldData data) {
+        this.doGenerate = false;
+
+        foreach (var pair in this.chunkSlice) {
+            Destroy(pair.Value.gameObject);
+        }
+        this.chunkSlice.Clear();
+        this.activeChunks.Clear();
+
+        this.generationQueue.Clear();
+        this.isGeneratingChunks = false;
+
+        // TODO: spawnPosition
+
+        Debug.Assert(data.positions.Count == data.chunks.Count);
+        for (int i = 0; i < data.positions.Count; i++) {
+            Vector2Int position = new Vector2Int(data.positions[i][0], data.positions[i][1]);
+            this.chunkSlice.Add(position, new Chunk(this, position, data.chunks[i]));
+        }
+
+        this.player.position = new Vector3(
+            data.playerData.position[0],
+            data.playerData.position[1],
+            data.playerData.position[2]
+        );
+        this.player.rotation = Quaternion.Euler(
+            data.playerData.orientation[0],
+            data.playerData.orientation[1],
+            data.playerData.orientation[2]
+        );
+
+        this.playerChunkPosition = ChunkPositionFromPosition(this.player.position);
+        this.playerLastChunkPosition = this.playerChunkPosition;
+
+        this.seed = data.seed;
+        Random.InitState(this.seed);
+
+        for (int x = this.playerChunkPosition.x - ViewDistanceInChunks / 2; x < this.playerChunkPosition.x + ViewDistanceInChunks / 2; x++) {
+            for (int z = this.playerChunkPosition.y - ViewDistanceInChunks / 2; z < this.playerChunkPosition.y + ViewDistanceInChunks / 2; z++) {
+                if (!this.chunkSlice.ContainsKey(new Vector2Int(x, z))) {
+                    this.chunkSlice[new Vector2Int(x, z)] = new Chunk(this, new Vector2Int(x, z), true);
+                    this.generationQueue.Enqueue(new Vector2Int(x, z));
+                }
+                else {
+                    this.chunkSlice[new Vector2Int(x, z)].Load();
+                }
+
+                this.activeChunks.Add(new Vector2Int(x, z));
+            }
+        }
+
+        CheckViewDistance();
+    }
+
     void Start() {
         this.spawnPosition = new Vector3(1.0f, Chunk.Height, 1.0f);
 
         Random.InitState(this.seed);
-        GenerateWorld();
+
+        if (this.doGenerate) {
+            GenerateWorld();
+        }
 
         this.playerLastChunkPosition = ChunkPositionFromPosition(this.player.position);
     }

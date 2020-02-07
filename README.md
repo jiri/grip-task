@@ -11,7 +11,7 @@ Minecraft s funkcemi:
 - [x] Při zapnutí nové mapy hra automaticky vygeneruje nějaký terén/svět na kterém se bude hráč pohybovat (mrkni třeba na perlin noise vcetne nejakych modifikacich pro vyraznejsi rozdily ve vysce) 
 - [x] Textura/barva terénu/kostech bude proměnlivá podle toho v jaké výšce je (toto platí pouze pro generovaný teren, nikoliv kostky položené hráčem) 
 - [x] V případě že hráč dojde na konec mapy, dogeneruje se další kus a staré se odstraní, ideálně by generování mělo být deterministické (bonus: zachovat uzivatelovi zmeny v odstranenem kusu mapy a obnovit je kdyz se tam hrac vrati)
-- [ ] Hra a stav světa půjde uložit do souboru a načíst (není potřeba UI, stačí pevná cesta na 1 save slot)
+- [x] Hra a stav světa půjde uložit do souboru a načíst (není potřeba UI, stačí pevná cesta na 1 save slot)
 - [ ] Zamyslet se nad pripadnymi optimalizacemi (rychlost generovani, rendering, multi threading atp) ktere sepsat a pripadne take implementovat pokud ti cas dovoli
 
 ## Optimalizace

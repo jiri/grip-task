@@ -6,7 +6,7 @@ public class Chunk {
     public static readonly int Size = 16;
     public static readonly int Height = 32;
 
-    GameObject gameObject;
+    public GameObject gameObject;
 
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
@@ -22,6 +22,7 @@ public class Chunk {
     public Vector2Int chunkPosition;
 
     public bool IsLoaded { get; private set; } = false;
+    public bool IsVoxelMapPopulated { get; private set; } = false;
 
     private bool _isActive = true;
 
@@ -47,6 +48,11 @@ public class Chunk {
         }
     }
 
+    public Chunk(World world, Vector2Int chunkPosition, ChunkData chunkData) : this(world, chunkPosition, true) {
+        this.data = chunkData.data;
+        this.IsVoxelMapPopulated = true;
+    }
+
     public Chunk(World world, Vector2Int chunkPosition, bool delayedLoad = false) {
         this.world = world;
         this.chunkPosition = chunkPosition;
@@ -67,7 +73,9 @@ public class Chunk {
         this.meshRenderer = this.gameObject.AddComponent<MeshRenderer>();
         this.meshRenderer.material = this.world.atlas.material;
 
-        PopulateMap();
+        if (!this.IsVoxelMapPopulated) {
+            PopulateMap();
+        }
         GenerateMesh();
 
         this.IsLoaded = true;
@@ -81,6 +89,8 @@ public class Chunk {
                 }
             }
         }
+
+        this.IsVoxelMapPopulated = true;
     }
 
     bool IsVoxelInChunk(Vector3Int p) {
