@@ -7,6 +7,8 @@ public class BlockPrototype {
     public string name;
     public bool isSolid;
 
+    public Sprite icon;
+
     [Header("Textures")]
     public int topTexture;
     public int bottomTexture;

@@ -31,6 +31,8 @@ public class FPSController : MonoBehaviour {
     public GameObject destroyMarker;
     public GameObject placeMarker;
 
+    public byte selectedBlock;
+
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -69,7 +71,7 @@ public class FPSController : MonoBehaviour {
         }
 
         if (this.placePosition.HasValue && Input.GetMouseButtonDown(1)) {
-            world.ChunkFromPosition(this.placePosition.Value).EditVoxel(this.placePosition.Value, 2);
+            world.ChunkFromPosition(this.placePosition.Value).EditVoxel(this.placePosition.Value, this.selectedBlock);
         }
     }
 

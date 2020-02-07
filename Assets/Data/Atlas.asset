@@ -15,6 +15,7 @@ MonoBehaviour:
   prototypes:
   - name: Air
     isSolid: 0
+    icon: {fileID: 0}
     topTexture: 0
     bottomTexture: 0
     leftTexture: 0
@@ -23,6 +24,7 @@ MonoBehaviour:
     backTexture: 0
   - name: Stone
     isSolid: 1
+    icon: {fileID: 21300000, guid: 6231dbb96fe3c4b1c912338019a71fa9, type: 3}
     topTexture: 1
     bottomTexture: 1
     leftTexture: 1
@@ -31,6 +33,7 @@ MonoBehaviour:
     backTexture: 1
   - name: Dirt
     isSolid: 1
+    icon: {fileID: 21300004, guid: 6231dbb96fe3c4b1c912338019a71fa9, type: 3}
     topTexture: 2
     bottomTexture: 2
     leftTexture: 2
@@ -39,6 +42,7 @@ MonoBehaviour:
     backTexture: 2
   - name: Grass
     isSolid: 1
+    icon: {fileID: 21300002, guid: 6231dbb96fe3c4b1c912338019a71fa9, type: 3}
     topTexture: 0
     bottomTexture: 2
     leftTexture: 3
@@ -47,6 +51,7 @@ MonoBehaviour:
     backTexture: 3
   - name: Wood
     isSolid: 1
+    icon: {fileID: 21300006, guid: 6231dbb96fe3c4b1c912338019a71fa9, type: 3}
     topTexture: 21
     bottomTexture: 21
     leftTexture: 20
