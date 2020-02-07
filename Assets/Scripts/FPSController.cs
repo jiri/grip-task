@@ -33,8 +33,9 @@ public class FPSController : MonoBehaviour {
 
     public byte selectedBlock;
 
-    bool isBreaking;
-    float breakProgress;
+    public bool isBreaking;
+    public float breakProgress;
+    public float breakMaximum;
 
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
@@ -72,6 +73,7 @@ public class FPSController : MonoBehaviour {
         if (this.destroyPosition.HasValue && Input.GetMouseButtonDown(0)) {
             this.isBreaking = true;
             this.breakProgress = this.world.atlas.prototypes[this.world.GetVoxel(this.destroyPosition.Value)].durability;
+            this.breakMaximum = this.breakProgress;
         }
 
         if (this.placePosition.HasValue && Input.GetMouseButtonDown(1)) {
