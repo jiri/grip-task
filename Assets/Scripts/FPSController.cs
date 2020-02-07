@@ -33,6 +33,9 @@ public class FPSController : MonoBehaviour {
 
     public byte selectedBlock;
 
+    bool isBreaking;
+    float breakProgress;
+
     void Start() {
         Cursor.lockState = CursorLockMode.Locked;
 
@@ -67,11 +70,27 @@ public class FPSController : MonoBehaviour {
         }
 
         if (this.destroyPosition.HasValue && Input.GetMouseButtonDown(0)) {
-            world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
+            this.isBreaking = true;
+            this.breakProgress = this.world.atlas.prototypes[this.world.GetVoxel(this.destroyPosition.Value)].durability;
         }
 
         if (this.placePosition.HasValue && Input.GetMouseButtonDown(1)) {
             world.ChunkFromPosition(this.placePosition.Value).EditVoxel(this.placePosition.Value, this.selectedBlock);
+        }
+
+        if (this.isBreaking) {
+            if (Input.GetMouseButtonUp(0)) {
+                this.isBreaking = false;
+                this.breakProgress = 0.0f;
+            }
+            else if (this.breakProgress > 0.0f) {
+                this.breakProgress -= Time.deltaTime;
+            }
+            else {
+                this.isBreaking = false;
+                this.breakProgress = 0.0f;
+                world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
+            }
         }
     }
 
@@ -92,6 +111,8 @@ public class FPSController : MonoBehaviour {
 
     // FIXME: Fails to set placePosition if first step hits (probably ok)
     void RayCast() {
+        Vector3Int? lastDestroyPosition = this.destroyPosition;
+
         float stepIncrement = 0.1f;
         float step = stepIncrement;
 
@@ -122,6 +143,11 @@ public class FPSController : MonoBehaviour {
 
             lastPosition = new Vector3Int(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y), Mathf.FloorToInt(pos.z));
             step += stepIncrement;
+        }
+
+        if (lastDestroyPosition.HasValue && lastDestroyPosition != this.destroyPosition) {
+            this.isBreaking = false;
+            this.breakProgress = 0.0f;
         }
     }
 

@@ -6,6 +6,7 @@ using UnityEngine;
 public class BlockPrototype {
     public string name;
     public bool isSolid;
+    public float durability;
 
     public Sprite icon;
 
