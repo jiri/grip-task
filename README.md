@@ -17,5 +17,6 @@ Minecraft s funkcemi:
 ## Optimalizace
 
 - Ukládat chunky jako octree
-- Threadovaná generace chunků
+- Threadovaná generace chunků (per chunk)
 - Nepoužívat na uložení chunků `Dictionary`
+- Negenerovat po každé změně mesh celého chunku znovu
