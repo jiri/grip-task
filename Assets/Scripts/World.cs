@@ -78,6 +78,10 @@ public class World : MonoBehaviour {
             && chunkPosition.y >= 0 && chunkPosition.y <= SizeInChunks - 1;
     }
 
+    bool IsVoxelInWorld(Vector3 pos) {
+        return pos.y >= 0 && pos.y < Chunk.Height && IsChunkInWorld(ChunkPositionFromPosition(pos));
+    }
+
     Vector2Int ChunkPositionFromPosition(Vector3 position) {
         return new Vector2Int(
             Mathf.FloorToInt(position.x / Chunk.Size),
@@ -136,8 +140,12 @@ public class World : MonoBehaviour {
         }
     }
 
-    public bool CheckVoxel(Vector3 position) {
-        Vector2Int chunkPosition = ChunkPositionFromPosition(position);
+    public bool CheckVoxel(Vector3 pos) {
+        if (!IsVoxelInWorld(pos)) {
+            return false;
+        }
+
+        Vector2Int chunkPosition = ChunkPositionFromPosition(pos);
 
         if (!IsChunkInWorld(chunkPosition)) {
             return false;
@@ -146,14 +154,14 @@ public class World : MonoBehaviour {
         Chunk chunk = this.chunkSlice[chunkPosition.x, chunkPosition.y];
 
         if (chunk != null && chunk.IsLoaded) {
-            Vector3Int localPosition = chunk.LocalPositionFromGlobal(position);
+            Vector3Int localPosition = chunk.LocalPositionFromGlobal(pos);
             byte block = chunk.data[localPosition.x, localPosition.y, localPosition.z];
             return this.atlas.prototypes[block].isSolid;
         }
         else {
-            int x = Mathf.FloorToInt(position.x);
-            int y = Mathf.FloorToInt(position.y);
-            int z = Mathf.FloorToInt(position.z);
+            int x = Mathf.FloorToInt(pos.x);
+            int y = Mathf.FloorToInt(pos.y);
+            int z = Mathf.FloorToInt(pos.z);
             byte block = GetVoxel(new Vector3Int(x, y, z));
             return this.atlas.prototypes[block].isSolid;
         }
