@@ -89,6 +89,11 @@ public class World : MonoBehaviour {
         );
     }
 
+    public Chunk ChunkFromPosition(Vector3 pos) {
+        Vector2Int chunkPosition = ChunkPositionFromPosition(pos);
+        return this.chunkSlice[chunkPosition.x, chunkPosition.y];
+    }
+
     void CheckViewDistance() {
         Vector2Int chunkCoord = ChunkPositionFromPosition(player.position);
         List<Vector2Int> previouslyActiveChunks = new List<Vector2Int>(this.activeChunks);

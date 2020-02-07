@@ -101,6 +101,8 @@ public class Chunk {
     }
 
     void GenerateMesh() {
+        ClearMesh();
+
         for (int x = 0; x < Chunk.Size; x++) {
             for (int y = 0; y < Chunk.Height; y++) {
                 for (int z = 0; z < Chunk.Size; z++) {
@@ -118,6 +120,13 @@ public class Chunk {
         this.meshFilter.mesh = mesh;
     }
 
+    void ClearMesh() {
+        this.currentVertex = 0;
+        this.vertices.Clear();
+        this.triangles.Clear();
+        this.uvs.Clear();
+    }
+
     void AddBlockGeometry(Vector3Int p) {
         byte block = GetBlock(p);
         if (block == 0) {
@@ -125,16 +134,16 @@ public class Chunk {
         }
 
         foreach (Geometry.Face face in System.Enum.GetValues(typeof(Geometry.Face))) {
-            if (!CheckVoxel(p + face.Offset())) {
-                //byte block = GetBlock(p);
+            if (CheckVoxel(p + face.Offset())) {
+                continue;
+            }
 
-                for (int i = 0; i < 6; i++) {
-                    int index = Geometry.triangles[(int)face, i];
-                    vertices.Add(Geometry.vertices[index] + p);
-                    triangles.Add(currentVertex);
-                    AddUV(this.world.atlas.prototypes[block].GetTextureID(face), Geometry.uvs[i]);
-                    currentVertex++;
-                }
+            for (int i = 0; i < 6; i++) {
+                int index = Geometry.triangles[(int)face, i];
+                vertices.Add(Geometry.vertices[index] + p);
+                triangles.Add(currentVertex);
+                AddUV(this.world.atlas.prototypes[block].GetTextureID(face), Geometry.uvs[i]);
+                currentVertex++;
             }
         }
     }
@@ -156,5 +165,22 @@ public class Chunk {
         z -= Mathf.FloorToInt(this.position.z);
 
         return new Vector3Int(x, y, z);
+    }
+
+    public void EditVoxel(Vector3Int pos, byte newBlock) {
+        Vector3Int localPos = LocalPositionFromGlobal(pos);
+
+        this.data[localPos.x, localPos.y, localPos.z] = newBlock;
+
+        UpdateNeighbours(localPos);
+        GenerateMesh();
+    }
+
+    void UpdateNeighbours(Vector3Int pos) {
+        foreach (Geometry.Face face in System.Enum.GetValues(typeof(Geometry.Face))) {
+            if (!IsVoxelInChunk(pos + face.Offset())) {
+                this.world.ChunkFromPosition(this.position + pos + face.Offset()).GenerateMesh();
+            }
+        }
     }
 }

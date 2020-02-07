@@ -63,6 +63,14 @@ public class FPSController : MonoBehaviour {
         if (this.isGrounded && Input.GetButtonDown("Jump")) {
             this.shouldJump = true;
         }
+
+        if (this.destroyPosition.HasValue && Input.GetMouseButtonDown(0)) {
+            world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
+        }
+
+        if (this.placePosition.HasValue && Input.GetMouseButtonDown(1)) {
+            world.ChunkFromPosition(this.placePosition.Value).EditVoxel(this.placePosition.Value, 2);
+        }
     }
 
     void FixedUpdate() {

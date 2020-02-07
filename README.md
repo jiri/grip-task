@@ -5,8 +5,8 @@
 Minecraft s funkcemi:
 
 - [x] 4 druhy kostiček, stačí barevně odlišit/jina texture
-- [ ] Ve stavebním módu (tj. když si uživatel vybere jednu ze 4 kostiček a chce ji položit) se ukáže wireframe/poloprůhledná kostky se kterou budeme "zaměřovat" a kostka se bude snapovat ke gridu, tzn nepůjde stavět jakkoliv
-- [ ] Kostky nepůjde umístit jen tak do vzduchu, tzn vždy musí jednou stranou sedět k jiné kostce nebo podlaze
+- [x] Ve stavebním módu (tj. když si uživatel vybere jednu ze 4 kostiček a chce ji položit) se ukáže wireframe/poloprůhledná kostky se kterou budeme "zaměřovat" a kostka se bude snapovat ke gridu, tzn nepůjde stavět jakkoliv
+- [x] Kostky nepůjde umístit jen tak do vzduchu, tzn vždy musí jednou stranou sedět k jiné kostce nebo podlaze
 - [ ] Uživatel bude mít možnost bloky rozbít, každá ze 4 kostech bude mít svou "tvrdost" tudíž bude potřeba déle držet tlačítko pro rozbití
 - [x] Při zapnutí nové mapy hra automaticky vygeneruje nějaký terén/svět na kterém se bude hráč pohybovat (mrkni třeba na perlin noise vcetne nejakych modifikacich pro vyraznejsi rozdily ve vysce) 
 - [x] Textura/barva terénu/kostech bude proměnlivá podle toho v jaké výšce je (toto platí pouze pro generovaný teren, nikoliv kostky položené hráčem) 
