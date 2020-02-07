@@ -38,7 +38,7 @@ public class FPSController : MonoBehaviour {
     public float breakMaximum;
 
     void Start() {
-        Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.lockState = CursorLockMode.Locked;
 
         this.camera = GameObject.Find("Main Camera").transform;
     }

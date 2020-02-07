@@ -46,6 +46,6 @@ public class Toolbar : MonoBehaviour {
 
         this.progressBar.SetActive(this.player.isBreaking);
         float progress = 1.0f - this.player.breakProgress / this.player.breakMaximum;
-        this.progressBarActive.SetSizeWithCurrentAnchors( RectTransform.Axis.Horizontal, progress * this.progresBarWidth);
+        this.progressBarActive.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, progress * this.progresBarWidth);
     }
 }
