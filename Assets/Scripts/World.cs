@@ -5,16 +5,9 @@ using UnityEngine;
 public class World : MonoBehaviour {
     public BlockAtlas atlas;
 
-    public static readonly int SizeInChunks = 100;
     public static readonly int ViewDistanceInChunks = 5;
-    static int SizeInVoxels {
-        get {
-            return SizeInChunks * Chunk.Size;
-        }
-    }
 
-    // TODO: Make the world infinite (and optionally unload far away chunks)
-    Chunk[,] chunkSlice = new Chunk[SizeInChunks, SizeInChunks];
+    Dictionary<Vector2Int, Chunk> chunkSlice = new Dictionary<Vector2Int, Chunk>();
     List<Vector2Int> activeChunks = new List<Vector2Int>();
 
     Queue<Vector2Int> generationQueue = new Queue<Vector2Int>();
@@ -29,7 +22,7 @@ public class World : MonoBehaviour {
     public int seed;
 
     void Start() {
-        this.spawnPosition = new Vector3(SizeInVoxels / 2.0f, Chunk.Height / 2.0f + 2.0f, SizeInVoxels / 2.0f);
+        this.spawnPosition = new Vector3(1.0f, Chunk.Height, 1.0f);
 
         Random.InitState(this.seed);
         GenerateWorld();
@@ -55,7 +48,7 @@ public class World : MonoBehaviour {
 
         while (generationQueue.Count > 0) {
             Vector2Int chunkPosition = generationQueue.Dequeue();
-            this.chunkSlice[chunkPosition.x, chunkPosition.y].Load();
+            this.chunkSlice[chunkPosition].Load();
             yield return null;
         }
 
@@ -63,9 +56,9 @@ public class World : MonoBehaviour {
     }
 
     void GenerateWorld() {
-        for (int x = SizeInChunks / 2 - ViewDistanceInChunks / 2; x < SizeInChunks / 2 + ViewDistanceInChunks / 2; x++) {
-            for (int z = SizeInChunks / 2 - ViewDistanceInChunks / 2; z < SizeInChunks / 2 + ViewDistanceInChunks / 2; z++) {
-                this.chunkSlice[x, z] = new Chunk(this, new Vector2Int(x, z));
+        for (int x = -ViewDistanceInChunks / 2; x < ViewDistanceInChunks / 2; x++) {
+            for (int z = -ViewDistanceInChunks / 2; z < ViewDistanceInChunks / 2; z++) {
+                this.chunkSlice[new Vector2Int(x, z)] = new Chunk(this, new Vector2Int(x, z));
                 this.activeChunks.Add(new Vector2Int(x, z));
             }
         }
@@ -73,13 +66,8 @@ public class World : MonoBehaviour {
         this.player.position = this.spawnPosition;
     }
 
-    bool IsChunkInWorld(Vector2Int chunkPosition) {
-        return chunkPosition.x >= 0 && chunkPosition.x <= SizeInChunks - 1
-            && chunkPosition.y >= 0 && chunkPosition.y <= SizeInChunks - 1;
-    }
-
     bool IsVoxelInWorld(Vector3 pos) {
-        return pos.y >= 0 && pos.y < Chunk.Height && IsChunkInWorld(ChunkPositionFromPosition(pos));
+        return pos.y >= 0 && pos.y < Chunk.Height;
     }
 
     Vector2Int ChunkPositionFromPosition(Vector3 position) {
@@ -91,7 +79,7 @@ public class World : MonoBehaviour {
 
     public Chunk ChunkFromPosition(Vector3 pos) {
         Vector2Int chunkPosition = ChunkPositionFromPosition(pos);
-        return this.chunkSlice[chunkPosition.x, chunkPosition.y];
+        return this.chunkSlice[chunkPosition];
     }
 
     void CheckViewDistance() {
@@ -100,16 +88,12 @@ public class World : MonoBehaviour {
 
         for (int x = chunkCoord.x - ViewDistanceInChunks / 2; x < chunkCoord.x + ViewDistanceInChunks / 2; x++) {
             for (int z = chunkCoord.y - ViewDistanceInChunks / 2; z < chunkCoord.y + ViewDistanceInChunks / 2; z++) {
-                if (!IsChunkInWorld(new Vector2Int(x, z))) {
-                    continue;
-                }
-
-                if (this.chunkSlice[x, z] == null) {
-                    this.chunkSlice[x, z] = new Chunk(this, new Vector2Int(x, z), true);
+                if (!this.chunkSlice.ContainsKey(new Vector2Int(x, z))) {
+                    this.chunkSlice[new Vector2Int(x, z)] = new Chunk(this, new Vector2Int(x, z), true);
                     this.generationQueue.Enqueue(new Vector2Int(x, z));
                 }
-                else if (!this.chunkSlice[x, z].isActive) {
-                    this.chunkSlice[x, z].isActive = true;
+                else if (!this.chunkSlice[new Vector2Int(x, z)].isActive) {
+                    this.chunkSlice[new Vector2Int(x, z)].isActive = true;
                 }
 
                 this.activeChunks.Add(new Vector2Int(x, z));
@@ -118,14 +102,12 @@ public class World : MonoBehaviour {
         }
 
         foreach (Vector2Int position in previouslyActiveChunks) {
-            this.chunkSlice[position.x, position.y].isActive = false;
+            this.chunkSlice[position].isActive = false;
         }
     }
 
     public byte GetVoxel(Vector3Int position) {
-        if (position.x < 0 || position.x > SizeInVoxels - 1 ||
-            position.y < 0 || position.y > Chunk.Height - 1 ||
-            position.z < 0 || position.z > SizeInVoxels - 1) {
+        if (position.y < 0 || position.y > Chunk.Height - 1) {
             return 0;
         }
 
@@ -152,13 +134,8 @@ public class World : MonoBehaviour {
 
         Vector2Int chunkPosition = ChunkPositionFromPosition(pos);
 
-        if (!IsChunkInWorld(chunkPosition)) {
-            return false;
-        }
-
-        Chunk chunk = this.chunkSlice[chunkPosition.x, chunkPosition.y];
-
-        if (chunk != null && chunk.IsLoaded) {
+        if (this.chunkSlice.ContainsKey(chunkPosition) && this.chunkSlice[chunkPosition].IsLoaded) {
+            Chunk chunk = this.chunkSlice[chunkPosition];
             Vector3Int localPosition = chunk.LocalPositionFromGlobal(pos);
             byte block = chunk.data[localPosition.x, localPosition.y, localPosition.z];
             return this.atlas.prototypes[block].isSolid;
