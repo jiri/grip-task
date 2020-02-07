@@ -94,7 +94,7 @@ public class Chunk {
     }
 
     bool CheckVoxel(Vector3Int pos) {
-        if (!IsVoxelInChunk(position)) {
+        if (!IsVoxelInChunk(pos)) {
             return this.world.CheckVoxel(this.position + pos);
         }
         return world.atlas.prototypes[this.data[pos.x, pos.y, pos.z]].isSolid;
