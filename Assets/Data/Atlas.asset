@@ -63,4 +63,14 @@ MonoBehaviour:
     rightTexture: 20
     frontTexture: 20
     backTexture: 20
+  - name: Planks
+    isSolid: 1
+    durability: 2.5
+    icon: {fileID: 21300014, guid: 6231dbb96fe3c4b1c912338019a71fa9, type: 3}
+    topTexture: 4
+    bottomTexture: 4
+    leftTexture: 4
+    rightTexture: 4
+    frontTexture: 4
+    backTexture: 4
   material: {fileID: 2100000, guid: b72fee47d017e4ec68c9e4b4484b9b6c, type: 2}
