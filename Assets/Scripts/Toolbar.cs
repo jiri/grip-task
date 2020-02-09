@@ -15,12 +15,6 @@ public class Toolbar : MonoBehaviour {
     public RectTransform highlight;
     public Image[] slotIcons;
 
-    [Header("Progress Bar")]
-    // TODO: Extract this into a custom class
-    public GameObject progressBar;
-    float progresBarWidth;
-    public RectTransform progressBarActive;
-
     int currentSlot = 0;
     float scroll = 0.0f;
     float scrollSensitivity = 0.2f;
@@ -32,7 +26,6 @@ public class Toolbar : MonoBehaviour {
     }
 
     void Start() {
-        this.progresBarWidth = this.progressBar.GetComponent<RectTransform>().sizeDelta.x;
         this.currentSlot = this.player.selectedBlock;
 
         for (int i = 0; i < this.blocks.Length; i++) {
@@ -61,9 +54,5 @@ public class Toolbar : MonoBehaviour {
 
         this.highlight.position = this.slotIcons[currentSlot].transform.position;
         this.player.selectedBlock = this.blocks[this.currentSlot];
-
-        this.progressBar.SetActive(this.player.isBreaking);
-        float progress = 1.0f - this.player.breakProgress / this.player.breakMaximum;
-        this.progressBarActive.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, progress * this.progresBarWidth);
     }
 }

@@ -189,6 +189,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 60722299}
   m_CullTransparentMesh: 0
+--- !u!1 &102247901
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 102247902}
+  - component: {fileID: 102247903}
+  m_Layer: 5
+  m_Name: Progress Bar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &102247902
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102247901}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_Children:
+  - {fileID: 1602424016}
+  - {fileID: 341904893}
+  m_Father: {fileID: 1618618194}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 54}
+  m_SizeDelta: {x: 116, y: 4}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &102247903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 102247901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0292112000a984b23ab1a2a1470b6672, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 167079091}
 --- !u!1 &128360575
 GameObject:
   m_ObjectHideFlags: 0
@@ -225,7 +276,6 @@ RectTransform:
   - {fileID: 857332999}
   - {fileID: 1718270465}
   - {fileID: 1828469536}
-  - {fileID: 1602424016}
   m_Father: {fileID: 1618618194}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -291,8 +341,6 @@ MonoBehaviour:
   - {fileID: 1327263006}
   - {fileID: 2022041935}
   - {fileID: 694452968}
-  progressBar: {fileID: 1602424015}
-  progressBarActive: {fileID: 341904893}
 --- !u!1 &167079090
 GameObject:
   m_ObjectHideFlags: 0
@@ -332,9 +380,6 @@ MonoBehaviour:
   destroyMarker: {fileID: 927413378}
   placeMarker: {fileID: 1169737029}
   selectedBlock: 0
-  isBreaking: 0
-  breakProgress: 0
-  breakMaximum: 0
 --- !u!4 &167079092
 Transform:
   m_ObjectHideFlags: 0
@@ -568,7 +613,7 @@ GameObject:
   - component: {fileID: 341904895}
   - component: {fileID: 341904894}
   m_Layer: 5
-  m_Name: ProgressBar
+  m_Name: Foreground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -585,8 +630,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1602424016}
-  m_RootOrder: 0
+  m_Father: {fileID: 102247902}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -660,7 +705,7 @@ RectTransform:
   m_Children:
   - {fileID: 60722300}
   m_Father: {fileID: 1618618194}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -1518,7 +1563,7 @@ RectTransform:
   m_Children:
   - {fileID: 1004483217}
   m_Father: {fileID: 1618618194}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -1612,7 +1657,7 @@ GameObject:
   - component: {fileID: 1602424018}
   - component: {fileID: 1602424017}
   m_Layer: 5
-  m_Name: ProgressBarBackground
+  m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1625,18 +1670,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1602424015}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 341904893}
-  m_Father: {fileID: 128360576}
-  m_RootOrder: 6
+  m_Children: []
+  m_Father: {fileID: 102247902}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0}
-  m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 25}
-  m_SizeDelta: {x: 116, y: 4}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1602424017
 MonoBehaviour:
@@ -1765,6 +1809,7 @@ RectTransform:
   m_Children:
   - {fileID: 1158259507}
   - {fileID: 128360576}
+  - {fileID: 102247902}
   - {fileID: 1347500026}
   - {fileID: 363458259}
   m_Father: {fileID: 0}

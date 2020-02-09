@@ -6,7 +6,7 @@ public class FPSController : MonoBehaviour {
     public World world;
     new private Transform camera;
 
-    
+    /* FPS movement */
     public float mouseSensitivity = 10.0f;
     public float walkSpeed = 3.0f;
     public float jumpForce = 5.0f;
@@ -24,6 +24,7 @@ public class FPSController : MonoBehaviour {
     private bool isGrounded;
     private bool shouldJump;
 
+    /* Block manipulation */
     public float reach = 3.0f;
     private Vector3Int? placePosition;
     private Vector3Int? destroyPosition;
@@ -33,9 +34,19 @@ public class FPSController : MonoBehaviour {
 
     public byte selectedBlock;
 
-    public bool isBreaking;
-    public float breakProgress;
-    public float breakMaximum;
+    float breakCurrent;
+    float breakMaximum;
+
+    public bool isBreaking {
+        get {
+            return this.breakCurrent > 0.0f;
+        }
+    }
+    public float breakProgress {
+        get {
+            return 1.0f - this.breakCurrent / this.breakMaximum;
+        }
+    }
 
     void Start() {
         // Cursor.lockState = CursorLockMode.Locked;
@@ -45,6 +56,15 @@ public class FPSController : MonoBehaviour {
 
     void Update() {
         GetInput();
+
+        if (this.isBreaking) {
+            this.breakCurrent -= Time.deltaTime;
+
+            if (this.breakCurrent < 0) {
+                this.breakCurrent = 0.0f;
+                world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
+            }
+        }
 
         this.placeMarker.SetActive(this.placePosition != null);
         if (this.placePosition.HasValue) {
@@ -71,28 +91,16 @@ public class FPSController : MonoBehaviour {
         }
 
         if (this.destroyPosition.HasValue && Input.GetMouseButtonDown(0)) {
-            this.isBreaking = true;
-            this.breakProgress = this.world.atlas.prototypes[this.world.GetVoxel(this.destroyPosition.Value)].durability;
-            this.breakMaximum = this.breakProgress;
+            this.breakCurrent = this.world.atlas.prototypes[this.world.GetVoxel(this.destroyPosition.Value)].durability;
+            this.breakMaximum = this.breakCurrent;
         }
 
         if (this.placePosition.HasValue && Input.GetMouseButtonDown(1)) {
             world.ChunkFromPosition(this.placePosition.Value).EditVoxel(this.placePosition.Value, this.selectedBlock);
         }
 
-        if (this.isBreaking) {
-            if (Input.GetMouseButtonUp(0)) {
-                this.isBreaking = false;
-                this.breakProgress = 0.0f;
-            }
-            else if (this.breakProgress > 0.0f) {
-                this.breakProgress -= Time.deltaTime;
-            }
-            else {
-                this.isBreaking = false;
-                this.breakProgress = 0.0f;
-                world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
-            }
+        if (this.isBreaking && Input.GetMouseButtonUp(0)) {
+            this.breakCurrent = 0.0f;
         }
     }
 
@@ -148,8 +156,7 @@ public class FPSController : MonoBehaviour {
         }
 
         if (lastDestroyPosition.HasValue && lastDestroyPosition != this.destroyPosition) {
-            this.isBreaking = false;
-            this.breakProgress = 0.0f;
+            this.breakCurrent = 0.0f;
         }
     }
 
