@@ -35,7 +35,7 @@ public class World : MonoBehaviour {
         this.generationQueue.Clear();
         this.isGeneratingChunks = false;
 
-        // TODO: spawnPosition
+        // TODO: spawnPosition?
 
         Debug.Assert(data.positions.Count == data.chunks.Count);
         for (int i = 0; i < data.positions.Count; i++) {
@@ -165,21 +165,31 @@ public class World : MonoBehaviour {
         }
     }
 
-    // TODO: Get actual, not just generated
-    public byte GetVoxel(Vector3Int position) {
-        if (position.y < 0 || position.y > Chunk.Height - 1) {
+    public byte GetVoxel(Vector3Int pos) {
+        if (!IsVoxelInWorld(pos)) {
             return 0;
         }
 
-        int height = Mathf.FloorToInt(Chunk.Height * 0.5f * Noise.Get2DPerlin(new Vector2(position.x, position.z), this.seed, 0.25f));
+        Vector2Int chunkPosition = ChunkPositionFromPosition(pos);
 
-        if (position.y > height) {
+        if (this.chunkSlice.ContainsKey(chunkPosition) && this.chunkSlice[chunkPosition].IsVoxelMapPopulated) {
+            Vector3Int localPos = this.chunkSlice[chunkPosition].LocalPositionFromGlobal(pos);
+            return this.chunkSlice[chunkPosition].data[localPos.x, localPos.y, localPos.z];
+        }
+
+        return GenerateVoxel(pos);
+    }
+
+    public byte GenerateVoxel(Vector3Int pos) {
+        int height = Mathf.FloorToInt(Chunk.Height * 0.5f * Noise.Get2DPerlin(new Vector2(pos.x, pos.z), this.seed, 0.25f));
+
+        if (pos.y > height) {
             return 0;
         }
-        else if (position.y == height) {
+        else if (pos.y == height) {
             return 3;
         }
-        else if (position.y > height - 3) {
+        else if (pos.y > height - 3) {
             return 2;
         }
         else {
