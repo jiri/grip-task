@@ -49,35 +49,28 @@ public class FPSController : MonoBehaviour {
     }
 
     void Start() {
-        // Cursor.lockState = CursorLockMode.Locked;
+        this.camera = this.transform.Find("Main Camera");
 
-        this.camera = GameObject.Find("Main Camera").transform;
+        ToggleCursorLock();
     }
 
     void Update() {
         GetInput();
-
-        if (this.isBreaking) {
-            this.breakCurrent -= Time.deltaTime;
-
-            if (this.breakCurrent < 0) {
-                this.breakCurrent = 0.0f;
-                world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
-            }
-        }
-
-        this.placeMarker.SetActive(this.placePosition != null);
-        if (this.placePosition.HasValue) {
-            this.placeMarker.transform.position = this.placePosition.Value;
-        }
-
-        this.destroyMarker.SetActive(this.destroyPosition != null);
-        if (this.destroyPosition.HasValue) {
-            this.destroyMarker.transform.position = this.destroyPosition.Value;
-        }
+        UpdateBreak();
+        UpdateMarkers();
     }
 
     void GetInput() {
+        /* Miscellaneous */
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            ToggleCursorLock();
+        }
+
+        if (Cursor.lockState == CursorLockMode.None) {
+            return;
+        }
+
+        /* Movement */
         this.horizontal = Input.GetAxis("Horizontal");
         this.vertical = Input.GetAxis("Vertical");
 
@@ -90,6 +83,7 @@ public class FPSController : MonoBehaviour {
             this.shouldJump = true;
         }
 
+        /* Block editing */
         if (this.destroyPosition.HasValue && Input.GetMouseButtonDown(0)) {
             this.breakCurrent = this.world.atlas.prototypes[this.world.GetVoxel(this.destroyPosition.Value)].durability;
             this.breakMaximum = this.breakCurrent;
@@ -104,12 +98,45 @@ public class FPSController : MonoBehaviour {
         }
     }
 
+    void ToggleCursorLock() {
+        if (Cursor.lockState == CursorLockMode.None) {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else {
+            Cursor.lockState = CursorLockMode.None;
+        }
+    }
+
+    void UpdateBreak() {
+        if (this.isBreaking) {
+            this.breakCurrent -= Time.deltaTime;
+
+            if (this.breakCurrent < 0) {
+                this.breakCurrent = 0.0f;
+                world.ChunkFromPosition(this.destroyPosition.Value).EditVoxel(this.destroyPosition.Value, 0);
+            }
+        }
+    }
+
+    void UpdateMarkers() {
+        this.placeMarker.SetActive(this.placePosition != null);
+        if (this.placePosition.HasValue) {
+            this.placeMarker.transform.position = this.placePosition.Value;
+        }
+
+        this.destroyMarker.SetActive(this.destroyPosition != null);
+        if (this.destroyPosition.HasValue) {
+            this.destroyMarker.transform.position = this.destroyPosition.Value;
+        }
+    }
+
     void FixedUpdate() {
         CalculateVelocity();
 
         if (shouldJump) {
             shouldJump = false;
-            Jump();
+            verticalMomentum = jumpForce;
+            isGrounded = false;
         }
 
         this.transform.rotation = Quaternion.AngleAxis(this.mouseHorizontal, Vector3.up);
@@ -117,6 +144,29 @@ public class FPSController : MonoBehaviour {
         transform.Translate(velocity, Space.World);
 
         RayCast();
+    }
+
+    void CalculateVelocity() {
+        if (this.verticalMomentum > this.gravity) {
+            this.verticalMomentum += Time.fixedDeltaTime * this.gravity;
+        }
+
+        velocity = (transform.forward * this.vertical + transform.right * this.horizontal) * Time.fixedDeltaTime * this.walkSpeed;
+        velocity += Vector3.up * verticalMomentum * Time.fixedDeltaTime;
+
+        if ((velocity.z > 0 && this.front) || (velocity.z < 0 && this.back)) {
+            velocity.z = 0;
+        }
+        if ((velocity.x > 0 && this.right) || (velocity.x < 0 && this.left)) {
+            velocity.x = 0;
+        }
+
+        if (velocity.y < 0) {
+            velocity.y = checkDownSpeed(velocity.y);
+        }
+        else if (velocity.y > 0) {
+            velocity.y = checkUpSpeed(velocity.y);
+        }
     }
 
     // FIXME: Fails to set placePosition if first step hits (probably ok)
@@ -160,33 +210,7 @@ public class FPSController : MonoBehaviour {
         }
     }
 
-    void CalculateVelocity() {
-        if (this.verticalMomentum > this.gravity) {
-            this.verticalMomentum += Time.fixedDeltaTime * this.gravity;
-        }
-
-        velocity = (transform.forward * this.vertical + transform.right * this.horizontal) * Time.fixedDeltaTime * this.walkSpeed;
-        velocity += Vector3.up * verticalMomentum * Time.fixedDeltaTime;
-
-        if ((velocity.z > 0 && this.front) || (velocity.z < 0 && this.back)) {
-            velocity.z = 0;
-        }
-        if ((velocity.x > 0 && this.right) || (velocity.x < 0 && this.left)) {
-            velocity.x = 0;
-        }
-
-        if (velocity.y < 0) {
-            velocity.y = checkDownSpeed(velocity.y);
-        }
-        else if (velocity.y > 0) {
-            velocity.y = checkUpSpeed(velocity.y);
-        }
-    }
-
-    void Jump() {
-        verticalMomentum = jumpForce;
-        isGrounded = false;
-    }
+    #region Collision checking
 
     bool AnyVoxel(Vector3[] directions) {
         foreach (Vector3 direction in directions) {
@@ -266,4 +290,6 @@ public class FPSController : MonoBehaviour {
             });
         }
     }
+
+    #endregion
 }
